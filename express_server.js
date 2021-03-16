@@ -22,7 +22,6 @@ const urlDatabase = {
   "9sm5xK": "http://google.com"
 };
 
-let shortURL = generateRandomString()
 
 app.get("/",(req, res)=>{
   res.send("Hello!");
@@ -37,10 +36,10 @@ app.get("/urls/new", (req, res) => {
 });
 app.post("/urls", (req, res) => {
   console.log(req.body.longURL);  // Log the POST request body to the console
+  let shortURL = generateRandomString()
   urlDatabase[shortURL] = req.body.longURL //pushes a new short URL to the database
   res.redirect(`/urls/${shortURL}`);         
 });
-
 app.get("/urls/:shortURL",(req, res)=>{
   const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]}
   res.render("urls_show", templateVars)
@@ -48,6 +47,12 @@ app.get("/urls/:shortURL",(req, res)=>{
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL] // urlDatabase[shortURL] ??
   res.redirect(longURL);
+});
+app.post("/urls/:shortURL/delete",(req, res)=>{
+  delete urlDatabase[req.params.shortURL]
+  console.log(urlDatabase)
+  console.log("deleted")
+  res.redirect("/urls")
 });
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);

@@ -17,16 +17,21 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col">DELETE</th>
         </tr>
       </thead>
       <tbody>
-        <% for(let url in urls) { %>
+        <% for(let url in urls) { %> 
           <tr>
+            <form method="POST" action="/urls/<%=url %>/delete">
             <td><%= url %></td>
             <td><%= urls[url] %></td>
+            <td><button>DELETE</button></td>
+            </form>
           </tr>
         <% } %>
       </tbody>
+
     </table>
   </main>
   <!-- Bootstrap JS -->
