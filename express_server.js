@@ -11,7 +11,7 @@ function generateRandomString() {
   }
   return randomString
 }
-console.log(generateRandomString())
+
 //requires ejs
 app.set("view engine", "ejs")
 
@@ -35,8 +35,11 @@ app.get("/urls/new", (req, res) => {
 });
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
+  urlDatabase[generateRandomString()] = req.body //pushes a new short URL to the database
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  console.log(urlDatabase)
 });
+
 app.get("/urls/:shortURL",(req, res)=>{
   const templateVars = {shortURL: req.params.shortURL, longURL: req.params.longURL}
   res.render("urls_show", templateVars)
