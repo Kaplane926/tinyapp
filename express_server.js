@@ -31,7 +31,6 @@ app.get("/",(req, res)=>{
 app.get("/urls", (req, res)=>{
   const templateVars = {urls: urlDatabase}
 res.render("urls_index", templateVars)
-console.log(urlDatabase)
 });
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
@@ -39,12 +38,16 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body.longURL);  // Log the POST request body to the console
   urlDatabase[shortURL] = req.body.longURL //pushes a new short URL to the database
-  res.redirect(`/urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${shortURL}`);         
 });
 
 app.get("/urls/:shortURL",(req, res)=>{
   const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]}
   res.render("urls_show", templateVars)
+});
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[shortURL]
+  res.redirect(longURL);
 });
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
