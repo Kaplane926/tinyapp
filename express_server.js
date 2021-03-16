@@ -22,6 +22,8 @@ const urlDatabase = {
   "9sm5xK": "http://google.com"
 };
 
+let shortURL = generateRandomString()
+
 app.get("/",(req, res)=>{
   res.send("Hello!");
 })
@@ -29,19 +31,19 @@ app.get("/",(req, res)=>{
 app.get("/urls", (req, res)=>{
   const templateVars = {urls: urlDatabase}
 res.render("urls_index", templateVars)
+console.log(urlDatabase)
 });
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  urlDatabase[generateRandomString()] = req.body //pushes a new short URL to the database
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
-  console.log(urlDatabase)
+  console.log(req.body.longURL);  // Log the POST request body to the console
+  urlDatabase[shortURL] = req.body.longURL //pushes a new short URL to the database
+  res.redirect(`/urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/urls/:shortURL",(req, res)=>{
-  const templateVars = {shortURL: req.params.shortURL, longURL: req.params.longURL}
+  const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]}
   res.render("urls_show", templateVars)
 });
 app.get("/urls.json", (req, res) => {
