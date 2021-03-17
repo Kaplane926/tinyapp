@@ -54,6 +54,10 @@ app.post("/urls/:shortURL/delete",(req, res)=>{
   console.log("deleted")
   res.redirect("/urls")
 });
+app.post("/urls/:shortURL/edit", (req, res)=>{
+  console.log("button was pushed")
+  res.redirect(`/urls/${req.params.shortURL}`)
+})
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
