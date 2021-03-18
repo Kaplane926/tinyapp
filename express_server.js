@@ -37,12 +37,12 @@ app.get("/",(req, res)=>{
 })
 //Since we're following the Express convention of using a views directory, we can take advantage of a useful EJS shortcut! EJS automatically knows to look inside the views directory for any template files that have the extension .ejs.
 app.get("/urls", (req, res)=>{
-  console.log("cookies " + req.cookies["username"])
-  const templateVars = {urls: urlDatabase, username: req.cookies["username"]}
+  const templateVars = {urls: urlDatabase, user: users[req.cookies.userID]}
+  console.log(templateVars)
 res.render("urls_index", templateVars)
 });
 app.get("/urls/new", (req, res) => {
-  const templateVars = {username: req.cookies["username"]}
+  const templateVars = {user: users[req.cookies.userID]}
   res.render("urls_new", templateVars);
 });
 app.post("/urls", (req, res) => {
@@ -52,7 +52,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);         
 });
 app.get("/urls/:shortURL",(req, res)=>{
-  const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"]}
+  const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies.userID]}
   res.render("urls_show", templateVars)
 });
 app.get("/u/:shortURL", (req, res) => {
@@ -68,14 +68,15 @@ app.post("/urls/logout/", (req, res)=>{
   res.redirect("/urls")
 });
 app.get("/register",(req, res)=>{
-  const templateVars = {username: req.cookies["username"]}
+  const templateVars = {user: users[req.cookies.userID]}
 res.render("urls_register", templateVars)
 });
 app.post("/register", (req, res)=>{
   let id = generateRandomString()
   users[id] = { id, email: req.body["email"], password: req.body["password"]}
   res.cookie("userID", id)
-  console.log(users)
+  //console.log(users)
+  //console.log(req.cookies)
   res.redirect("/urls")
 });
 app.post("/urls/:shortURL/delete",(req, res)=>{
@@ -102,3 +103,7 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 });
+
+
+//req.cookies.userID
+//
