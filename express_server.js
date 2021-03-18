@@ -20,7 +20,24 @@ function checkEmailsEqual(email2){
     }
   }
   return false
-}
+};
+
+function checkPasswordsEqual(password2, email2){
+  for(key in users){
+    if(users[key].password === password2 && users[key].email === email2){
+      return true
+    }
+  }
+  return false
+};
+
+function findIDbyEmail(email2){
+  for(key in users){
+    if(users[key].email === email2)
+    return key
+    }
+  
+};
 
 
 //requires ejs
@@ -72,13 +89,21 @@ app.get("/login", (req, res)=>{
   const templateVars = {user: users[req.cookies.userID]}
 res.render("urls_login", templateVars)
 });
-app.post("/urls/login/", (req, res)=>{
-  res.cookie("username", req.body.username)
-  res.redirect("/urls")
+app.post("/login", (req, res)=>{
+  if(!checkEmailsEqual(req.body.email)){
+    res.send("Error 403")
+  };
+  if(!checkPasswordsEqual(req.body.password, req.body.email)){
+    res.send("Error 403")
+  } else {
+    console.log(findIDbyEmail(req.body.email))
+    res.cookie("userID", findIDbyEmail(req.body.email))
+    res.redirect("/urls")
+  }
 });
-app.post("/urls/logout/", (req, res)=>{
-  res.clearCookie("username")
-  res.redirect("/urls")
+app.post("/urls/logout", (req, res)=>{
+  res.clearCookie("userID")
+  res.redirect("/login")
 });
 app.get("/register",(req, res)=>{
   const templateVars = {user: users[req.cookies.userID]}
@@ -91,10 +116,10 @@ app.post("/register", (req, res)=>{
   } else if(checkEmailsEqual(req.body.email)){
     res.send("Error 404")
   } else {
-  console.log(req.body)
   users[id] = { id, email: req.body["email"], password: req.body["password"]}
-  res.cookie("userID", id)
-  res.redirect("/urls")
+  console.log(users)
+  //res.cookie("userID", id)
+  res.redirect("/login")
   }
 });
 app.post("/urls/:shortURL/delete",(req, res)=>{
