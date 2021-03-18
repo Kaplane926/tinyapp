@@ -68,10 +68,15 @@ app.post("/urls/logout/", (req, res)=>{
   res.redirect("/urls")
 });
 app.get("/register",(req, res)=>{
-res.render("urls_register")
+  const templateVars = {username: req.cookies["username"]}
+res.render("urls_register", templateVars)
 });
 app.post("/register", (req, res)=>{
-console.log(req.body)
+  let id = generateRandomString()
+  users[id] = { id, email: req.body["email"], password: req.body["password"]}
+  res.cookie("userID", id)
+  console.log(users)
+  res.redirect("/urls")
 });
 app.post("/urls/:shortURL/delete",(req, res)=>{
   delete urlDatabase[req.params.shortURL]
