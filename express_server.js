@@ -13,6 +13,16 @@ function generateRandomString() {
   return randomString
 }
 
+function checkEmailsEqual(email2){
+  for(key in users){
+    if(users[key].email === email2){
+      return true
+    }
+  }
+  return false
+}
+
+
 //requires ejs
 app.set("view engine", "ejs")
 
@@ -38,7 +48,6 @@ app.get("/",(req, res)=>{
 //Since we're following the Express convention of using a views directory, we can take advantage of a useful EJS shortcut! EJS automatically knows to look inside the views directory for any template files that have the extension .ejs.
 app.get("/urls", (req, res)=>{
   const templateVars = {urls: urlDatabase, user: users[req.cookies.userID]}
-  console.log(templateVars)
 res.render("urls_index", templateVars)
 });
 app.get("/urls/new", (req, res) => {
@@ -73,11 +82,16 @@ res.render("urls_register", templateVars)
 });
 app.post("/register", (req, res)=>{
   let id = generateRandomString()
+  if(!req.body.email || !req.body.password){
+    res.send("Error 400")
+  } else if(checkEmailsEqual(req.body.email)){
+    res.send("Error 404")
+  } else {
+  console.log(req.body)
   users[id] = { id, email: req.body["email"], password: req.body["password"]}
   res.cookie("userID", id)
-  //console.log(users)
-  //console.log(req.cookies)
   res.redirect("/urls")
+  }
 });
 app.post("/urls/:shortURL/delete",(req, res)=>{
   delete urlDatabase[req.params.shortURL]
