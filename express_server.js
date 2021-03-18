@@ -13,6 +13,33 @@ function generateRandomString() {
   return randomString
 }
 
+function checkEmailsEqual(email2){
+  for(key in users){
+    if(users[key].email === email2){
+      return true
+    }
+  }
+  return false
+};
+
+function checkPasswordsEqual(password2, email2){
+  for(key in users){
+    if(users[key].password === password2 && users[key].email === email2){
+      return true
+    }
+  }
+  return false
+};
+
+function findIDbyEmail(email2){
+  for(key in users){
+    if(users[key].email === email2)
+    return key
+    }
+  
+};
+
+
 //requires ejs
 app.set("view engine", "ejs")
 
@@ -20,22 +47,37 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
 const urlDatabase = {
-  "b2xVn2": "http://lighthouslabs.ca",
+  "b2xVn2": "http://lighthouselabs.ca",
   "9sm5xK": "http://google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+}
 
 app.get("/",(req, res)=>{
   res.send("Hello!");
 })
 //Since we're following the Express convention of using a views directory, we can take advantage of a useful EJS shortcut! EJS automatically knows to look inside the views directory for any template files that have the extension .ejs.
 app.get("/urls", (req, res)=>{
+<<<<<<< HEAD
   console.log("cookies " + req.cookies["username"])
   const templateVars = {urls: urlDatabase, username: req.cookies["username"]}
 res.render("urls_index", templateVars)
 });
 app.get("/urls/new", (req, res) => {
   const templateVars = {username: req.cookies["username"]}
+=======
+  const templateVars = {urls: urlDatabase, user: users[req.cookies.userID]}
+res.render("urls_index", templateVars)
+});
+app.get("/urls/new", (req, res) => {
+  const templateVars = {user: users[req.cookies.userID]}
+>>>>>>> feature/user-registration
   res.render("urls_new", templateVars);
 });
 app.post("/urls", (req, res) => {
@@ -45,12 +87,53 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);         
 });
 app.get("/urls/:shortURL",(req, res)=>{
+<<<<<<< HEAD
   const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"]}
+=======
+  const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies.userID]}
+>>>>>>> feature/user-registration
   res.render("urls_show", templateVars)
 });
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL] // urlDatabase[shortURL] ??
   res.redirect(longURL);
+});
+app.get("/login", (req, res)=>{
+  const templateVars = {user: users[req.cookies.userID]}
+res.render("urls_login", templateVars)
+});
+app.post("/login", (req, res)=>{
+  if(!checkEmailsEqual(req.body.email)){
+    res.send("Error 403")
+  };
+  if(!checkPasswordsEqual(req.body.password, req.body.email)){
+    res.send("Error 403")
+  } else {
+    console.log(findIDbyEmail(req.body.email))
+    res.cookie("userID", findIDbyEmail(req.body.email))
+    res.redirect("/urls")
+  }
+});
+app.post("/urls/logout", (req, res)=>{
+  res.clearCookie("userID")
+  res.redirect("/login")
+});
+app.get("/register",(req, res)=>{
+  const templateVars = {user: users[req.cookies.userID]}
+res.render("urls_register", templateVars)
+});
+app.post("/register", (req, res)=>{
+  let id = generateRandomString()
+  if(!req.body.email || !req.body.password){
+    res.send("Error 400")
+  } else if(checkEmailsEqual(req.body.email)){
+    res.send("Error 404")
+  } else {
+  users[id] = { id, email: req.body["email"], password: req.body["password"]}
+  console.log(users)
+  //res.cookie("userID", id)
+  res.redirect("/login")
+  }
 });
 app.post("/urls/:shortURL/delete",(req, res)=>{
   delete urlDatabase[req.params.shortURL]
@@ -84,3 +167,5 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`)
 });
+
+
