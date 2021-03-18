@@ -47,8 +47,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
 const urlDatabase = {
-  "b2xVn2": "http://lighthouselabs.ca",
-  "9sm5xK": "http://google.com"
+  /*"b2xVn2": {longURL: "http://lighthouselabs.ca", userID: "aJ48lW"},
+  "9sm5xK": {longURL: "http://google.com", userID: "aJ48lW"}*/
 };
 
 const users = {
@@ -57,45 +57,45 @@ const users = {
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
   },
+  "otherRandomID": {
+    id: "otherRandomID",
+    email: "elikaplan@me.com",
+    password: "password"
+  }
 }
+
 
 app.get("/",(req, res)=>{
   res.send("Hello!");
 })
 //Since we're following the Express convention of using a views directory, we can take advantage of a useful EJS shortcut! EJS automatically knows to look inside the views directory for any template files that have the extension .ejs.
 app.get("/urls", (req, res)=>{
-<<<<<<< HEAD
-  console.log("cookies " + req.cookies["username"])
-  const templateVars = {urls: urlDatabase, username: req.cookies["username"]}
-res.render("urls_index", templateVars)
-});
-app.get("/urls/new", (req, res) => {
-  const templateVars = {username: req.cookies["username"]}
-=======
-  const templateVars = {urls: urlDatabase, user: users[req.cookies.userID]}
+  const templateVars = {urls: urlDatabase, user: users[req.cookies.userID], userID: req.cookies.userID}
+  console.log(templateVars)
 res.render("urls_index", templateVars)
 });
 app.get("/urls/new", (req, res) => {
   const templateVars = {user: users[req.cookies.userID]}
->>>>>>> feature/user-registration
+  if(req.cookies.userID === undefined){
+    res.redirect("/login")
+  }
   res.render("urls_new", templateVars);
 });
 app.post("/urls", (req, res) => {
   console.log(req.body.longURL);  // Log the POST request body to the console
   let shortURL = generateRandomString()
-  urlDatabase[shortURL] = req.body.longURL //pushes a new short URL to the database
+  urlDatabase[shortURL] =  {longURL: req.body.longURL, userID: req.cookies.userID}//pushes a new short URL to the database
+  console.log(urlDatabase)
   res.redirect(`/urls/${shortURL}`);         
 });
 app.get("/urls/:shortURL",(req, res)=>{
-<<<<<<< HEAD
-  const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"]}
-=======
   const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies.userID]}
->>>>>>> feature/user-registration
+  console.log(urlDatabase)
+  console.log(templateVars)
   res.render("urls_show", templateVars)
 });
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL] // urlDatabase[shortURL] ??
+  const longURL = urlDatabase[req.params.shortURL].longURL // urlDatabase[shortURL] ??
   res.redirect(longURL);
 });
 app.get("/login", (req, res)=>{
@@ -109,7 +109,6 @@ app.post("/login", (req, res)=>{
   if(!checkPasswordsEqual(req.body.password, req.body.email)){
     res.send("Error 403")
   } else {
-    console.log(findIDbyEmail(req.body.email))
     res.cookie("userID", findIDbyEmail(req.body.email))
     res.redirect("/urls")
   }
@@ -139,14 +138,6 @@ app.post("/urls/:shortURL/delete",(req, res)=>{
   delete urlDatabase[req.params.shortURL]
   console.log(urlDatabase)
   console.log("deleted")
-  res.redirect("/urls")
-});
-app.post("/urls/login/", (req, res)=>{
-  res.cookie("username", req.body.username)
-  res.redirect("/urls")
-});
-app.post("/urls/logout/", (req, res)=>{
-  res.clearCookie("username")
   res.redirect("/urls")
 });
 app.post("/urls/:shortURL/edit", (req, res)=>{

@@ -22,15 +22,19 @@
         </tr>
       </thead>
       <tbody>
+        <% if(userID !== undefined) { %>
         <% for(let url in urls) { %> 
           <tr>
-            <td><%= url %></td>
-            <td><%= urls[url] %></td>
+            <% if(userID === urls[url].userID){ %>
+            <td><a href="/u/<%= url %>"><%= url %></a></td>
+            <td><%= urls[url].longURL %></td>
             <td><form method="POST" action="/urls/<%=url %>/edit"><button>EDIT</button></form></td>
             <td><form method="POST" action="/urls/<%=url %>/delete"><button>DELETE</button></td></form>
+            <% } %>
           </tr>
         <% } %>
       </tbody>
+        <% } %>
 
     </table>
   </main>
