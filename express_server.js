@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
 const urlDatabase = {
-  "b2xVn2": "http://lighthouslabs.ca",
+  "b2xVn2": "http://lighthouselabs.ca",
   "9sm5xK": "http://google.com"
 };
 
@@ -67,6 +67,10 @@ app.get("/urls/:shortURL",(req, res)=>{
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL] // urlDatabase[shortURL] ??
   res.redirect(longURL);
+});
+app.get("/login", (req, res)=>{
+  const templateVars = {user: users[req.cookies.userID]}
+res.render("urls_login", templateVars)
 });
 app.post("/urls/login/", (req, res)=>{
   res.cookie("username", req.body.username)
@@ -119,5 +123,3 @@ app.listen(PORT, () => {
 });
 
 
-//req.cookies.userID
-//
