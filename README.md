@@ -4,15 +4,16 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["screenshot of the main, urls Index page"](https://github.com/Kaplane926/tinyapp/blob/master/docs/urls-page.png?raw=true)
+!["screenshot of the urls edit page"](https://github.com/Kaplane926/tinyapp/blob/master/docs/urls-edit.png?raw=true)
+!["screenshot of the login page"](https://github.com/Kaplane926/tinyapp/blob/master/docs/urls-login.png?raw=true)
 
 ## Dependencies
 
 - Node.js
 - Express
 - EJS
-- bcrypt
+- bcryptjs
 - body-parser
 - cookie-session
 
