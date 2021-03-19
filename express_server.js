@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080;
 const cookieParser = require("cookie-parser")
@@ -64,7 +65,7 @@ const urlDatabase = {
 };
 
 const users = {
-  "userRandomID": {
+  /*"userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur"
@@ -73,14 +74,13 @@ const users = {
     id: "otherRandomID",
     email: "elikaplan@me.com",
     password: "password"
-  }
+  }*/
 }
 
 
 app.get("/",(req, res)=>{
   res.send("Hello!");
-})
-//Since we're following the Express convention of using a views directory, we can take advantage of a useful EJS shortcut! EJS automatically knows to look inside the views directory for any template files that have the extension .ejs.
+});
 app.get("/urls", (req, res)=>{
   const templateVars = {urls: urlDatabase, user: users[req.cookies.userID], userID: req.cookies.userID}
   console.log(templateVars)
@@ -118,7 +118,7 @@ app.post("/login", (req, res)=>{
   if(!checkEmailsEqual(req.body.email)){
     res.send("Error 403")
   };
-  if(!checkPasswordsEqual(req.body.password, req.body.email)){
+  if(!bcrypt.compareSync(req.body.password, users[findIDbyEmail(req.body.email)].password)){
     res.send("Error 403")
   } else {
     res.cookie("userID", findIDbyEmail(req.body.email))
@@ -140,7 +140,9 @@ app.post("/register", (req, res)=>{
   } else if(checkEmailsEqual(req.body.email)){
     res.send("Error 404")
   } else {
-  users[id] = { id, email: req.body["email"], password: req.body["password"]}
+    const pass = req.body.password
+    const hashedPassword = bcrypt.hashSync(pass, 10);
+  users[id] = { id, email: req.body["email"], password: hashedPassword}
   console.log(users)
   //res.cookie("userID", id)
   res.redirect("/login")
