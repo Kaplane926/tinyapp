@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080;
 const cookieSession = require('cookie-session')
-
+const {generateRandomString, checkEmailsEqual, findIDbyEmail, urlsForUser} = require("./helper")
+/*
 function generateRandomString() {
   const Char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let randomString = ""
@@ -22,19 +23,19 @@ function checkEmailsEqual(email2){
   }
   return false
 };
-
-function checkPasswordsEqual(password2, email2){
+*/
+/*function checkPasswordsEqual(password2, email2){
   for(key in users){
     if(users[key].password === password2 && users[key].email === email2){
       return true
     }
   }
   return false
-};
-
-function findIDbyEmail(email2){
-  for(key in users){
-    if(users[key].email === email2)
+};*/
+/*
+function findIDbyEmail(email2, database){
+  for(key in database){
+    if(database[key].email === email2)
     return key
     }
   
@@ -50,7 +51,7 @@ function urlsForUser(id){
   }
   return usersIDs
 };
-
+*/
 
 //req.session.userID = "some value";
 
@@ -119,13 +120,13 @@ app.get("/login", (req, res)=>{
 res.render("urls_login", templateVars)
 });
 app.post("/login", (req, res)=>{
-  if(!checkEmailsEqual(req.body.email)){
+  if(!checkEmailsEqual(req.body.email, users)){
     res.send("Error 403")
   };
-  if(!bcrypt.compareSync(req.body.password, users[findIDbyEmail(req.body.email)].password)){
+  if(!bcrypt.compareSync(req.body.password, users[findIDbyEmail(req.body.email, users)].password)){
     res.send("Error 403")
   } else {
-    req.session.userID = findIDbyEmail(req.body.email)
+    req.session.userID = findIDbyEmail(req.body.email, users)
     res.redirect("/urls")
   }
 });
@@ -142,7 +143,7 @@ app.post("/register", (req, res)=>{
   let id = generateRandomString()
   if(!req.body.email || !req.body.password){
     res.send("Error 400")
-  } else if(checkEmailsEqual(req.body.email)){
+  } else if(checkEmailsEqual(req.body.email, users)){
     res.send("Error 404")
   } else {
     const pass = req.body.password
@@ -154,7 +155,7 @@ app.post("/register", (req, res)=>{
   }
 });
 app.post("/urls/:shortURL/delete",(req, res)=>{
-  let urlsArray = urlsForUser(req.session.userID)
+  let urlsArray = urlsForUser(req.session.userID, urlDatabase)
   for(url of urlsArray){
     if(req.params.shortURL === url){
       delete urlDatabase[req.params.shortURL]
@@ -168,7 +169,7 @@ app.post("/urls/:shortURL/edit", (req, res)=>{
   res.redirect(`/urls/${req.params.shortURL}`)
 });
 app.post("/urls/:shortURL/test",(req, res)=>{
-  let urlsArray = urlsForUser(req.session.userID)
+  let urlsArray = urlsForUser(req.session.userID, urlDatabase)
   for(url of urlsArray){
     if(req.params.shortURL === url){
   urlDatabase[req.params.shortURL] = {longURL: req.body.longURL, userID: req.session.userID}
