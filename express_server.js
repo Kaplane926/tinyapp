@@ -39,6 +39,18 @@ function findIDbyEmail(email2){
   
 };
 
+function urlsForUser(id){
+  usersIDs = []
+  for(url in urlDatabase){
+    console.log(urlDatabase[url].userID)
+    if(urlDatabase[url].userID === id){
+    usersIDs.push(url)
+    }
+  }
+  return usersIDs
+};
+
+
 
 //requires ejs
 app.set("view engine", "ejs")
@@ -135,9 +147,13 @@ app.post("/register", (req, res)=>{
   }
 });
 app.post("/urls/:shortURL/delete",(req, res)=>{
-  delete urlDatabase[req.params.shortURL]
-  console.log(urlDatabase)
-  console.log("deleted")
+  let urlsArray = urlsForUser(req.cookies.userID)
+  for(url of urlsArray){
+    if(req.params.shortURL === url){
+      delete urlDatabase[req.params.shortURL]
+      console.log("deleted")
+    }
+  }
   res.redirect("/urls")
 });
 app.post("/urls/:shortURL/edit", (req, res)=>{
@@ -145,8 +161,14 @@ app.post("/urls/:shortURL/edit", (req, res)=>{
   res.redirect(`/urls/${req.params.shortURL}`)
 });
 app.post("/urls/:shortURL/test",(req, res)=>{
-  urlDatabase[req.params.shortURL] = req.body.longURL
+  let urlsArray = urlsForUser(req.cookies.userID)
+  for(url of urlsArray){
+    if(req.params.shortURL === url){
+  urlDatabase[req.params.shortURL] = {longURL: req.body.longURL, userID: req.cookies.userID}
+  console.log("boop")
   res.redirect("/urls")
+    }
+  }
 });
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
